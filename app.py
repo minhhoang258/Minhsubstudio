@@ -1470,7 +1470,8 @@ def run_download_and_transcribe_job(
             if FFMPEG_BIN:
                 ydl_opts["ffmpeg_location"] = FFMPEG_BIN
             if os.path.exists("/etc/secrets/cookies.txt"):
-                ydl_opts["cookiefile"] = "/etc/secrets/cookies.txt"
+                shutil.copyfile("/etc/secrets/cookies.txt", "/tmp/cookies.txt")
+                ydl_opts["cookiefile"] = "/tmp/cookies.txt"
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
