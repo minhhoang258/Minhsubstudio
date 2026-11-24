@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MinhSub Studio — by Lê Đình Hoàng Minh</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css?v=57" />
+</head>
+<body>
+
+<div class="ambient-bg" aria-hidden="true"></div>
+
+<!-- TOP STUDIO HEADER -->
+<header class="app-header">
+  <div class="brand">
+    <div class="brand-mark">
+      <span>HM</span>
+    </div>
+    <div class="brand-info">
+      <div class="brand-name">
+        MinhSub Studio <span class="ver-tag">PRO</span>
+      </div>
+      <div class="brand-by">by <strong>Lê Đình Hoàng Minh</strong></div>
+    </div>
+  </div>
+
+  <!-- CENTER COMMAND PILL -->
+  <div class="command-pill">
+    <svg class="ic muted-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+    <input type="text" id="urlInput" placeholder="Dán link YouTube, TED, TikTok, Bilibili... hoặc kéo thả file video" autocomplete="off" />
+    <button class="icon-btn" id="btnPickFile" title="Mở file từ máy tính">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    </button>
+    <input type="file" id="fileInput" accept="video/*,audio/*" hidden />
+    <button class="icon-btn active" id="btnToggleSettings" title="Ẩn / Hiện thanh cấu hình AI">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+    </button>
+    <button class="btn-generate" id="btnStartUrl">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+      <span>Tạo phụ đề</span>
+    </button>
+  </div>
+
+  <!-- RIGHT STATUS & TOOLS -->
+  <div class="header-right">
+    <div class="sys-pills" id="sysBadges">
+      <span class="sys-pill">Đang kiểm tra...</span>
+    </div>
+    <button class="ghost-btn" id="btnLlmModal" title="Cấu hình LLM cục bộ / API">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/><circle cx="7.5" cy="14.5" r="1"/><circle cx="16.5" cy="14.5" r="1"/></svg>
+      <span id="llmBtnLabel">LLM</span>
+    </button>
+    <button class="ghost-btn" id="btnOpenVocab" title="Mở sổ từ vựng">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span class="count-pill" id="vocabCount">0</span>
+    </button>
+  </div>
+</header>
+
+<!-- COLLAPSIBLE AI OPTIONS STRIP -->
+<section class="settings-strip open" id="settingsDrawer">
+  <div class="settings-inner">
+    <div class="select-pill">
+      <span class="pill-label">Gốc</span>
+      <select id="selSourceLang"></select>
+    </div>
+    <svg class="arrow-sep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    <div class="select-pill">
+      <span class="pill-label">Dịch</span>
+      <select id="selTargetLang"></select>
+    </div>
+
+    <div class="v-div"></div>
+
+    <div class="select-pill" title="AI ECAPA-TDNN + Wav2Vec2 nhận diện âm sắc giọng hát/nói">
+      <span class="pill-label">Giọng</span>
+      <select id="selVoiceOverride">
+        <option value="auto">AI Tự nhận diện</option>
+        <option value="male">Khóa Giọng Nam (♂)</option>
+        <option value="female">Khóa Giọng Nữ (♀)</option>
+      </select>
+    </div>
+
+    <div class="select-pill">
+      <span class="pill-label">Xưng hô</span>
+      <select id="selStyle">
+        <option value="auto">Tự động ngữ cảnh</option>
+        <option value="couple">Tình cảm (Anh – Em)</option>
+        <option value="family">Gia đình (Con – Bố/Mẹ)</option>
+        <option value="casual">Bạn bè (Mình – Cậu)</option>
+        <option value="anime">Phim / Anime</option>
+        <option value="formal">Công việc / TED</option>
+      </select>
+    </div>
+
+    <div class="select-pill">
+      <span class="pill-label">Model</span>
+      <select id="selModel">
+        <option value="tiny">tiny · siêu nhanh</option>
+        <option value="base">base · nhanh</option>
+        <option value="small" selected>small · khuyên dùng</option>
+        <option value="medium">medium · chuẩn cao</option>
+        <option value="large-v3-turbo">large-v3-turbo</option>
+        <option value="large-v3">large-v3 · nặng</option>
+      </select>
+    </div>
+
+    <div class="v-div"></div>
+
+    <label class="chip-toggle" title="Tải thẳng phụ đề gốc nếu video có sẵn">
+      <input type="checkbox" id="chkPreferSub" checked />
+      <span class="dot"></span>
+      <span>Ưu tiên sub sẵn</span>
+    </label>
+    <label class="chip-toggle" title="Tối ưu lọc giọng cho bài hát / MV có nhạc nền lớn">
+      <input type="checkbox" id="chkMusicMode" />
+      <span class="dot"></span>
+      <span>Nhạc lớn / MV</span>
+    </label>
+  </div>
+</section>
+
+<!-- PROGRESS BAR -->
+<div class="progress-wrap" id="progressWrap">
+  <div class="progress-card">
+    <div class="progress-head">
+      <span class="progress-stage" id="progressStage">Đang xử lý...</span>
+      <span class="progress-pct" id="progressPct">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN STUDIO WORKSPACE -->
+<main class="workspace">
+
+  <!-- LEFT: THEATER + FLOATING DOCK -->
+  <section class="theater-col">
+    <div class="video-stage" id="videoStage">
+      <video id="player" controls playsinline></video>
+
+      <div class="video-empty" id="videoEmpty">
+        <div class="empty-visual">
+          <div class="empty-ring"></div>
+          <svg class="empty-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        </div>
+        <h2>MinhSub Studio</h2>
+        <p>Dán link video ở thanh trên, <strong>kéo thả file vào đây</strong> hoặc chọn từ <strong>Lịch sử</strong>.</p>
+        <div class="empty-chips">
+          <span>AI ECAPA + Wav2Vec2</span>
+          <span>Khớp lời 60 FPS</span>
+          <span>Tra từ &amp; cụm từ tức thì</span>
+        </div>
+        <div class="empty-sign">Engineered by Lê Đình Hoàng Minh</div>
+      </div>
+
+      <div class="drop-hint" id="dropHint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="34" height="34"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span>Thả file video hoặc âm thanh vào đây</span>
+      </div>
+
+      <div class="sub-overlay" id="subOverlay">
+        <div class="sub-box" id="subBox" style="font-size:22px;"></div>
+      </div>
+    </div>
+
+    <!-- STREAMLINED STUDIO DOCK -->
+    <div class="player-dock">
+      <div class="dock-row">
+        <div class="job-title" id="jobTitle">Chưa chọn video</div>
+
+        <div class="dock-controls">
+          <div class="seg-group">
+            <button class="dock-btn" id="btnPrevCue" title="Câu trước (←)">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
+            </button>
+            <button class="dock-btn" id="btnLoopCue" title="Lặp lại câu hiện tại (R)">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+              <span>Lặp</span>
+            </button>
+            <button class="dock-btn" id="btnShadowMode" title="Tự dừng cuối mỗi câu để luyện nói (S)">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+              <span>Shadow</span>
+            </button>
+            <button class="dock-btn" id="btnNextCue" title="Câu sau (→)">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+            </button>
+          </div>
+
+          <div class="seg-group" title="Chỉnh sớm/trễ nhịp phụ đề">
+            <button class="dock-btn slim" id="btnOffMinus">−0.1</button>
+            <button class="dock-btn slim mono" id="btnOffReset" title="Đặt lại 0.0s">0.0s</button>
+            <button class="dock-btn slim" id="btnOffPlus">+0.1</button>
+          </div>
+
+          <select id="selSpeed" class="speed-pill" title="Tốc độ phát">
+            <option value="0.75">0.75x</option>
+            <option value="1" selected>1.0x</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x</option>
+          </select>
+
+          <button class="dock-btn" id="btnFullscreen" title="Toàn màn hình giữ phụ đề song ngữ">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="dock-row dock-bottom">
+        <div class="chip-bar">
+          <label class="chip-toggle compact"><input type="checkbox" id="chkShowOrig" checked /><span>Gốc</span></label>
+          <label class="chip-toggle compact"><input type="checkbox" id="chkShowRead" checked /><span>Phiên âm</span></label>
+          <label class="chip-toggle compact"><input type="checkbox" id="chkShowVi" checked /><span>Dịch</span></label>
+          <label class="chip-toggle compact"><input type="checkbox" id="chkShowGender" checked /><span>♂/♀</span></label>
+          <label class="chip-toggle compact" title="Tự dừng video khi bấm tra từ"><input type="checkbox" id="chkPauseLookup" checked /><span>Dừng tra từ</span></label>
+          <div class="size-slider" title="Cỡ chữ phụ đề">
+            <span class="size-a">A</span>
+            <input type="range" id="rngFontSize" min="15" max="36" value="22" />
+            <span class="size-A">A</span>
+          </div>
+        </div>
+
+        <div class="dock-actions">
+          <button class="action-btn" id="btnRetranslate" disabled title="Chạy lại AI nhận diện giọng & dịch theo cấu hình trên">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            <span>Dịch lại</span>
+          </button>
+
+          <div class="menu-wrap">
+            <button class="action-btn accent" id="btnExportMenu" disabled>
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Xuất &amp; Nạp</span>
+              <svg class="ic-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="dropdown-menu" id="exportMenu">
+              <button class="menu-item" id="btnExportHard" disabled>
+                <span class="mi-title">Xuất MP4 Hardsub</span>
+                <span class="mi-sub">Đốt phụ đề song ngữ đẹp vào hình</span>
+              </button>
+              <button class="menu-item" id="btnExportSoft" disabled>
+                <span class="mi-title">Xuất MP4 Softsub</span>
+                <span class="mi-sub">Đóng gói nhanh, bật/tắt sub được</span>
+              </button>
+              <div class="menu-sep"></div>
+              <button class="menu-item" id="btnDownloadSrt" disabled>
+                <span class="mi-title">Tải file phụ đề (.SRT)</span>
+                <span class="mi-sub">Xuất phụ đề song ngữ chuẩn UTF-8</span>
+              </button>
+              <button class="menu-item" id="btnDownloadRaw" disabled>
+                <span class="mi-title">Tải video gốc</span>
+                <span class="mi-sub">Lưu file video gốc về máy</span>
+              </button>
+              <div class="menu-sep"></div>
+              <button class="menu-item" id="btnImportSub" disabled>
+                <span class="mi-title">Nạp file SRT / VTT ngoài</span>
+                <span class="mi-sub">Thay thế phụ đề và tự động dịch</span>
+              </button>
+              <input type="file" id="subFileInput" accept=".srt,.vtt" hidden />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT: STUDIO INSPECTOR -->
+  <aside class="inspector-col">
+    <div class="inspector-tabs">
+      <div class="seg-tabs">
+        <button class="tab-btn active" data-tab="transcript">Phụ đề <span class="tab-badge" id="cueCount">0</span></button>
+        <button class="tab-btn" data-tab="history">Lịch sử</button>
+        <button class="tab-btn" data-tab="vocab">Từ vựng</button>
+      </div>
+    </div>
+
+    <!-- Transcript Pane -->
+    <div class="tab-pane active" id="pane-transcript">
+      <div class="pane-toolbar">
+        <div class="search-box">
+          <svg class="ic muted-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="cueSearch" placeholder="Tìm trong phụ đề..." />
+        </div>
+        <label class="chip-toggle compact">
+          <input type="checkbox" id="chkAutoScroll" checked />
+          <span>Tự cuộn</span>
+        </label>
+      </div>
+      <div class="scroll-list" id="cueList">
+        <div class="empty-msg">Chưa có phụ đề. Dán link hoặc chọn video từ Lịch sử.</div>
+      </div>
+    </div>
+
+    <!-- History Pane -->
+    <div class="tab-pane" id="pane-history">
+      <div class="pane-toolbar">
+        <span class="toolbar-label">Thư viện đã xử lý</span>
+        <button class="ghost-btn sm" id="btnRefreshHistory">Làm mới</button>
+      </div>
+      <div class="scroll-list" id="historyList"></div>
+    </div>
+
+    <!-- Vocab Pane -->
+    <div class="tab-pane" id="pane-vocab">
+      <div class="pane-toolbar">
+        <div class="search-box">
+          <svg class="ic muted-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="vocabSearch" placeholder="Lọc từ đã lưu..." />
+        </div>
+        <button class="ghost-btn sm" id="btnExportVocab">CSV</button>
+        <button class="ghost-btn sm danger-text" id="btnClearVocab">Xóa hết</button>
+      </div>
+      <div class="scroll-list" id="vocabList"></div>
+    </div>
+
+    <div class="inspector-footer">
+      <span>Phím tắt: <kbd>Space</kbd> Phát · <kbd>←</kbd><kbd>→</kbd> Câu · <kbd>R</kbd> Lặp · <kbd>S</kbd> Shadow</span>
+    </div>
+  </aside>
+</main>
+
+<!-- Floating phrase lookup button -->
+<button id="selBtn">
+  <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+  <span>Tra cụm từ</span>
+</button>
+
+<!-- Dictionary Lookup Modal -->
+<div class="modal-backdrop" id="lookupModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="lkWord">...</div>
+        <div class="lk-phonetic" id="lkPhonetic"></div>
+      </div>
+      <div class="modal-head-actions">
+        <button class="ghost-btn sm" id="btnLkAudio" title="Phát âm">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+        </button>
+        <button class="btn-primary sm" id="btnLkSave">Lưu từ</button>
+        <button class="icon-btn" id="btnLkClose" aria-label="Đóng">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="lkBody">Đang tra từ điển...</div>
+  </div>
+</div>
+
+<!-- Inline Cue Edit Modal -->
+<div class="modal-backdrop" id="editCueModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Chỉnh sửa câu phụ đề</div>
+      <button class="icon-btn" id="btnEditClose" aria-label="Đóng">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Bắt đầu (giây)</label>
+        <input type="number" step="0.05" id="editStart" />
+      </div>
+      <div class="field">
+        <label>Kết thúc (giây)</label>
+        <input type="number" step="0.05" id="editEnd" />
+      </div>
+    </div>
+    <div class="field">
+      <label>Lời gốc</label>
+      <textarea id="editOrig" rows="2"></textarea>
+    </div>
+    <div class="field">
+      <label>Bản dịch</label>
+      <textarea id="editVi" rows="2"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="ghost-btn" id="btnEditCancel">Hủy</button>
+      <button class="btn-primary" id="btnEditSave">Lưu thay đổi</button>
+    </div>
+  </div>
+</div>
+
+<!-- LLM Settings Modal -->
+<div class="modal-backdrop" id="llmModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Cấu hình LLM dịch ngữ cảnh</div>
+      <button class="icon-btn" id="btnLlmClose" aria-label="Đóng">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <p class="modal-desc">
+      Để trống để dùng bộ dịch mặc định kết hợp AI nhận diện giọng Nam/Nữ. Hoặc nhập địa chỉ Ollama / LM Studio / OpenAI-compatible để dịch bằng LLM.
+    </p>
+    <div class="field">
+      <label>Endpoint Base URL</label>
+      <input type="text" id="llmUrl" placeholder="http://127.0.0.1:11434/v1" />
+    </div>
+    <div class="field">
+      <label>Tên Model</label>
+      <input type="text" id="llmModel" placeholder="qwen2.5:7b" />
+    </div>
+    <div class="field">
+      <label>API Key (để trống nếu chạy nội bộ)</label>
+      <input type="password" id="llmKey" placeholder="sk-..." />
+    </div>
+    <div class="modal-actions">
+      <button class="ghost-btn" id="btnLlmClear">Xóa cấu hình</button>
+      <button class="btn-primary" id="btnLlmSave">Lưu cấu hình</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="/static/app.js?v=57"></script>
+</body>
+</html>
